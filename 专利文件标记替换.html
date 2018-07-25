@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>专利文件标记替换</title>
+    <!-- import Vue.js -->
+    <script src="https://cdn.bootcss.com/vue/2.5.16/vue.min.js"></script>
+    <!-- import stylesheet -->
+    <link href="https://cdn.bootcss.com/iview/2.14.0/styles/iview.css" rel="stylesheet">
+    <!-- import iView -->
+    <script src="https://cdn.bootcss.com/iview/2.14.0/iview.min.js"></script>
+    <style>
+        #app {
+            width: 90%;
+            margin: auto;
+        }
+
+        .header, .footer {
+            padding: 1em;
+            text-align: center;
+            background-color: #2d8cf0;
+            color: white;
+        }
+
+        .header span {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .header .problem {
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .problem-list {
+            margin: -15px 0 0 15px;
+            font-weight: bold;
+        }
+
+        .footer a {
+            color: white;
+        }
+
+        .card-box {
+            padding: 1em;
+        }
+
+        .card-item {
+            margin: 1em  0;
+        }
+
+        .output-box {
+            word-wrap: break-word;
+        }
+
+        .output {
+            padding: 0.5em;
+            text-indent: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <Layout>
+            <Header class="header">
+                <span>
+                    专利文件标记替换
+                </span>
+                <span class="problem" @click="confirmModal">常见问题</span>
+            </Header>
+            <Row>
+                <i-col :xs="24" :sm="12" :md="12" :lg="12">
+                    <div class="card-box">
+                        <div class="card-item">
+                            <Card padding="1em">
+                                <p slot="title">
+                                    <Icon type="document-text"></Icon>
+                                    附图标记
+                                </p>
+                                <i-button @click="clearReferenceNumeral" slot="extra" icon="trash-a" type="warning" size="small">
+                                    清除内容
+                                </i-button>
+                                <div>
+                                    <i-input type="textarea" v-model="referenceNumeral" :autosize="{minRows: 2}" placeholder="请输入附图标记内容，附图标记请以逗号隔开"></i-input>
+                                </div>
+                            </Card>
+                        </div>
+                        <div class="card-item">
+                            <Card>
+                                <p slot="title">
+                                    <Icon type="document-text"></Icon>
+                                    待处理文本
+                                </p>
+                                <i-button @click="clearRightsRequest" slot="extra" icon="trash-a" type="warning" size="small">
+                                    清除内容
+                                </i-button>
+                                <div>
+                                    <i-input type="textarea" v-model="rightsRequest" :autosize="{minRows: 10}" placeholder="请输入需要标记的文本"></i-input>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                </i-col>
+                <i-col :xs="24" :sm="12" :md="12" :lg="12">
+                    <div class="card-box">
+                        <div class="card-item">
+                            <Card>
+                                <p slot="title">
+                                    <Icon type="clipboard"></Icon>
+                                    权利要求标记（带括号标记）
+                                </p>
+                                <div class="output-box">
+                                    <p class="output" v-for='output in outputWithBracket'>
+                                        {{ output }}
+                                    </p>
+                                </div>
+                            </Card>
+                        </div>
+                        <div class="card-item">
+                            <Card>
+                                <p slot="title">
+                                    <Icon type="clipboard"></Icon>
+                                    实施例标记（无括号标记）
+                                </p>
+                                <div class="output-box">
+                                    <p class="output" v-for='output in outputWithoutBracket'>
+                                        {{ output }}
+                                    </p>
+                                </div>
+                            </Card>
+                        </div>
+                        <div class="card-item">
+                            <Card>
+                                <p slot="title">
+                                    <Icon type="clipboard"></Icon>
+                                    清除文本中所述和其特征在于
+                                </p>
+                                <div class="output-box">
+                                    <p class="output" v-for='output in outputWithoutSaidArr'>
+                                        {{ output }}
+                                    </p>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                </i-col>
+            </Row>
+            <footer class="footer">
+                <p>
+                    <a href="https://github.com/huanghaibin91" target="_black">
+                        <Icon type="social-github"></Icon>&nbsp;Writed By Huang Haibin
+                    </a>
+                </p>
+            </footer>
+        </Layout>
+	<back-top></back-top>
+    </div>
+
+    <!-- js -->
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                referenceNumeral: '',
+                rightsRequest: ''
+            },
+            computed: {
+                numeralArr: function () {
+                    var _this = this;
+                    var firstNumberIndex = this.referenceNumeral.search(/[1-9]/);
+                    var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').split(/，|,/);
+                    if (numArr.length === 1 && numArr[0] === '') {
+                        return [];
+                    } else {
+                        return numArr.map(function (val, index) {
+                            var arr = [];
+                            var wordIndex = val.search(/[\u4e00-\u9fa5]/);
+                            var numberLastIndex = 0;
+                            if (/[0-9]/.test(val[0])) {
+                                for (var i = val.length; i >= 0; i--) {
+                                    if (/[0-9]/.test(val[i])) {
+                                        numberLastIndex = i;
+                                        break;
+                                    }
+                                }
+                                arr.push(val.slice(0, numberLastIndex + 1));
+                                arr.push(val.slice(wordIndex));
+                                return arr;
+                            } 
+                        });
+                    }
+                },
+                outputWithBracket: function () {
+                    var str = this.rightsRequest;
+                    var arr = this.numeralArr;
+                    console.log(arr);
+                    for (var i = 0; i < arr.length; i++) {
+                        var reg = new RegExp(arr[i][1], 'g');
+                        str = str.replace(reg, arr[i][1] + '（' + arr[i][0] + '）');
+                    }
+                    if (str === '') {
+                        return [];
+                    } else {
+                        var strArr = str.split(/\n/);
+                        return strArr;
+                    }
+                },
+                outputWithoutBracket: function () {
+                    var str = this.outputWithoutSaid.trim();
+                    var arr = this.numeralArr;
+                    for (var i = 0; i < arr.length; i++) {
+                        var reg = new RegExp(arr[i][1], 'g');
+                        str = str.replace(reg, arr[i][1] + arr[i][0]);
+                    }
+                    if (str === '') {
+                        return [];
+                    } else {
+                        var strArr = str.split(/\n/);
+                        return strArr.map(function (val) {
+                            if (val.indexOf('根据权利要求') !== -1) {
+                                return val.slice(val.indexOf('，') + 1);
+                            } else {
+                                return val;
+                            }
+                        });
+                    }
+                },
+                outputWithoutSaid: function () {
+                    return this.rightsRequest.replace(/所述|其特征为：|其特征在于：/g, '');
+                },
+                outputWithoutSaidArr: function () {
+                    var str = this.outputWithoutSaid.trim();
+                    if (str === '') {
+                        return [];
+                    } else {
+                        var strArr = str.split(/\n/);
+                        return strArr.map(function (val) {
+                            if (val.indexOf('根据权利要求') !== -1) {
+                                return val.slice(val.indexOf('，') + 1);
+                            } else {
+                                return val;
+                            }
+                        });
+                    }
+                }
+            },
+            methods: {
+                clearReferenceNumeral: function () {
+                    this.referenceNumeral = '';
+                },
+                clearRightsRequest: function () {
+                    this.rightsRequest = '';
+                },
+                confirmModal: function () {
+                    this.$Modal.confirm({
+                        title: '常见问题',
+                        content: '<ol class="problem-list"><li>不支持IE8及其以下浏览器。</li><li>可能会有重复标记问题，例如：“螺栓”、“螺栓柱”这种含有包含性的词语，请注意检查转换后内容是否有错误。</li><li>有问题可以反馈给我，QQ：3600630026，我好进行修改。</li</ol>'
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
