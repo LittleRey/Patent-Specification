@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        function tagText(arr, text, bracketFlag) {
+            var tagArr = [];
+            arr.forEach(function (val) {
+                var flag = true;
+                var num = 0;
+                var len = val[1].length;
+                var numeralText = '';
+                var numeralLen = 0;
+                if (bracketFlag) {
+                    numeralText = val[1] + '（' + val[0] + '）';
+                    numeralLen = val[0].length + 2;
+                } else {
+                    numeralText = val[1] + val[0];
+                    numeralLen = val[0].length;
+                }
+                while (flag) {
+                    var index = text.indexOf(val[1], num + len);
+                    if (index === -1) {
+                        flag = false;
+                        var reg = new RegExp(val[1], 'g');
+                        text = text.replace(reg, '');
+                    } else {
+                        var arr = [];
+                        arr.push(index);
+                        arr.push(numeralText);
+                        arr.push(numeralLen);
+                        tagArr.unshift(arr);
+                        num = index;
+                    }
+                }
+            });
+            tagArr.sort(function (a, b) {
+                if (a[1] === b[1]) {
+                    return a[0] - b[0];
+                }
+            });
+            // var num = 0;
+            tagArr.forEach(function (val, index) {
+                var num = 0;
+                if (index !== 0) {
+                    for (var i = 0; i < index; i++) {
+                        if (val[1] === tagArr[i][1]) {
+                            num += tagArr[i][2];
+                        } else {
+                            if (val[0] >= tagArr[i][0]) {
+                                num += tagArr[i][2];
+                            }
+                        }
+                    }
+                }
+                
+                text = text.slice(0, val[0] + num) + val[1] + text.slice(val[0] + num);
+                // if (index !== 0) {
+                //     if (val[1] === tagArr[index - 1][1]) {
+                //         num += val[2];
+                //     } else {
+                //         num = 0;
+                //     }
+                // } else if (index === 0) {
+                //     num += val[2];
+                // }
+                console.log(num + text);
+            });
+            return tagArr;
+        }
+
+        console.log(tagText([
+            ['3', '螺栓座底'],
+            ['2', '螺栓座'],
+            ['1', '螺栓']
+        ], '所述螺栓的螺栓座，螺栓座底有个螺栓座，螺栓座有个螺栓', true));
+    </script>
+</body>
+
+</html>

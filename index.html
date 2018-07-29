@@ -81,7 +81,7 @@
                                     附图标记
                                 </p>
                                 <i-button @click="clearReferenceNumeral" slot="extra" icon="trash-a" type="warning" size="small">
-                                    清除内容
+                                    清除输入内容
                                 </i-button>
                                 <div>
                                     <i-input type="textarea" v-model="referenceNumeral" :autosize="{minRows: 2}" placeholder="请输入附图标记内容，附图标记请以逗号隔开"></i-input>
@@ -95,7 +95,7 @@
                                     待处理文本
                                 </p>
                                 <i-button @click="clearRightsRequest" slot="extra" icon="trash-a" type="warning" size="small">
-                                    清除内容
+                                    清除输入内容
                                 </i-button>
                                 <div>
                                     <i-input type="textarea" v-model="rightsRequest" :autosize="{minRows: 10}" placeholder="请输入需要标记的文本"></i-input>
@@ -136,7 +136,7 @@
                             <Card>
                                 <p slot="title">
                                     <Icon type="clipboard"></Icon>
-                                    清除文本中所述和其特征在于
+                                    清除文本中的所述和其特征在于
                                 </p>
                                 <div class="output-box">
                                     <p class="output" v-for='output in outputWithoutSaidArr'>
@@ -150,7 +150,7 @@
             </Row>
             <footer class="footer">
                 <p>
-                    <a href="https://github.com/huanghaibin91" target="_black">
+                    <a href="https://github.com/huanghaibin91/Patent-Specification" target="_black">
                         <Icon type="social-github"></Icon>&nbsp;Writed By Huang Haibin
                     </a>
                 </p>
@@ -169,13 +169,12 @@
             },
             computed: {
                 numeralArr: function () {
-                    var _this = this;
                     var firstNumberIndex = this.referenceNumeral.search(/[1-9]/);
-                    var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').split(/，|,/);
+                    var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').trim().split(/，|,/);
                     if (numArr.length === 1 && numArr[0] === '') {
-                        return [];
+                        numArr = [];
                     } else {
-                        return numArr.map(function (val, index) {
+                        numArr = numArr.map(function (val, index) {
                             var arr = [];
                             var wordIndex = val.search(/[\u4e00-\u9fa5]/);
                             var numberLastIndex = 0;
@@ -192,11 +191,17 @@
                             } 
                         });
                     }
+                    return numArr.sort(function (a, b) {
+                        if (a[1].indexOf(b[1]) === -1) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    });
                 },
                 outputWithBracket: function () {
                     var str = this.rightsRequest;
                     var arr = this.numeralArr;
-                    console.log(arr);
                     for (var i = 0; i < arr.length; i++) {
                         var reg = new RegExp(arr[i][1], 'g');
                         str = str.replace(reg, arr[i][1] + '（' + arr[i][0] + '）');
@@ -254,6 +259,9 @@
                 clearRightsRequest: function () {
                     this.rightsRequest = '';
                 },
+                // tagText: function (arr, text, bracketFlag) {
+                    
+                // },
                 confirmModal: function () {
                     this.$Modal.confirm({
                         title: '常见问题',
