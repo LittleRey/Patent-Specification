@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,8 @@
             margin: auto;
         }
 
-        .header, .footer {
+        .header,
+        .footer {
             padding: 1em;
             text-align: center;
             background-color: #2d8cf0;
@@ -49,7 +51,7 @@
         }
 
         .card-item {
-            margin: 1em  0;
+            margin: 1em 0;
         }
 
         .output-box {
@@ -62,6 +64,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <Layout>
@@ -156,7 +159,7 @@
                 </p>
             </footer>
         </Layout>
-	<back-top></back-top>
+        <back-top></back-top>
     </div>
 
     <!-- js -->
@@ -170,7 +173,8 @@
             computed: {
                 numeralArr: function () {
                     var firstNumberIndex = this.referenceNumeral.search(/[1-9]/);
-                    var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').trim().split(/，|,/);
+                    var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').trim().split(
+                        /，|,/);
                     if (numArr.length === 1 && numArr[0] === '') {
                         numArr = [];
                     } else {
@@ -188,7 +192,7 @@
                                 arr.push(val.slice(0, numberLastIndex + 1));
                                 arr.push(val.slice(wordIndex));
                                 return arr;
-                            } 
+                            }
                         });
                     }
                     return numArr.sort(function (a, b) {
@@ -202,37 +206,12 @@
                 outputWithBracket: function () {
                     var str = this.rightsRequest;
                     var arr = this.numeralArr;
-                    console.log(arr);
-                    for (var i = 0; i < arr.length; i++) {
-                        var reg = new RegExp(arr[i][1], 'g');
-                        str = str.replace(reg, arr[i][1] + '（' + arr[i][0] + '）');
-                    }
-                    if (str === '') {
-                        return [];
-                    } else {
-                        var strArr = str.split(/\n/);
-                        return strArr;
-                    }
+                    return this.tagText(arr, str, true);
                 },
                 outputWithoutBracket: function () {
                     var str = this.outputWithoutSaid.trim();
                     var arr = this.numeralArr;
-                    for (var i = 0; i < arr.length; i++) {
-                        var reg = new RegExp(arr[i][1], 'g');
-                        str = str.replace(reg, arr[i][1] + arr[i][0]);
-                    }
-                    if (str === '') {
-                        return [];
-                    } else {
-                        var strArr = str.split(/\n/);
-                        return strArr.map(function (val) {
-                            if (val.indexOf('根据权利要求') !== -1) {
-                                return val.slice(val.indexOf('，') + 1);
-                            } else {
-                                return val;
-                            }
-                        });
-                    }
+                    return this.tagText(arr, str, false);
                 },
                 outputWithoutSaid: function () {
                     return this.rightsRequest.replace(/所述|其特征为：|其特征在于：/g, '');
@@ -260,9 +239,77 @@
                 clearRightsRequest: function () {
                     this.rightsRequest = '';
                 },
-                // tagText: function (arr, text, bracketFlag) {
-                    
-                // },
+                tagText: function (arr, text, bracketFlag) {
+                    if (bracketFlag) {
+                        for (var i = 0; i < arr.length; i++) {
+                            var flag = true;
+                            var num = 0;
+                            var len = 0;
+                            while (flag) {
+                                var index = text.indexOf(arr[i][1], num + len);
+                                if (index === -1) {
+                                    flag = false;
+                                } else {
+                                    var numeralText = '（' + arr[i][0] + '）';
+                                    len = arr[i][1].length;
+                                    num = index;
+                                    if (i === 0) {
+                                        text = text.slice(0, index + len) + numeralText + text.slice(index +
+                                            len);
+                                    } else {
+                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
+                                            text = text.slice(0, index + len) + numeralText + text.slice(
+                                                index + len);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (text === '') {
+                            return [];
+                        } else {
+                            var textArr = text.split(/\n/);
+                            return textArr;
+                        }
+                    } else {
+                        for (var i = 0; i < arr.length; i++) {
+                            var flag = true;
+                            var num = 0;
+                            var len = 0;
+                            while (flag) {
+                                var index = text.indexOf(arr[i][1], num + len);
+                                if (index === -1) {
+                                    flag = false;
+                                } else {
+                                    var numeralText = '' + arr[i][0];
+                                    len = arr[i][1].length;
+                                    num = index;
+                                    if (i === 0) {
+                                        text = text.slice(0, index + len) + numeralText + text.slice(index +
+                                            len);
+                                    } else {
+                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
+                                            text = text.slice(0, index + len) + numeralText + text.slice(
+                                                index + len);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (text === '') {
+                            return [];
+                        } else {
+                            var textArr = text.split(/\n/);
+                            return textArr.map(function (val) {
+                                if (val.indexOf('根据权利要求') !== -1) {
+                                    return val.slice(val.indexOf('，') + 1);
+                                } else {
+                                    return val;
+                                }
+                            });
+                        }
+                    }
+                },
                 confirmModal: function () {
                     this.$Modal.confirm({
                         title: '常见问题',
@@ -273,4 +320,5 @@
         });
     </script>
 </body>
+
 </html>

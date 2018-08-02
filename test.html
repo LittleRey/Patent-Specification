@@ -27,7 +27,14 @@
                             if (i === 0) {
                                 text = text.slice(0, index + len) + numeralText + text.slice(index + len);
                             } else {
-                                if (index !== text.indexOf(arr[i - 1][1], index)) {
+                                var bracketIndex = text.indexOf('（', index);
+                                console.log(bracketIndex);
+                                var words = text.slice(bracketIndex - arr[i - 1][1].length, bracketIndex);
+                                console.log(words);
+                                if (bracketIndex == -1) {
+                                    
+                                }
+                                if (words !== arr[i - 1][1]) {
                                     text = text.slice(0, index + len) + numeralText + text.slice(index + len);
                                 }
                             }
@@ -82,7 +89,7 @@
             ['3', '螺栓座底'],
             ['2', '螺栓座'],
             ['1', '螺栓']
-        ], '所述螺栓的螺栓座，螺栓座底有个螺栓座，螺栓座有个螺栓', false));
+        ], '所述螺栓的螺栓座，螺栓座底有个螺栓座，螺栓座有个螺栓', true));
     </script>
 </body>
 
