@@ -242,28 +242,8 @@
                 tagText: function (arr, text, bracketFlag) {
                     if (bracketFlag) {
                         for (var i = 0; i < arr.length; i++) {
-                            var flag = true;
-                            var num = 0;
-                            var len = 0;
-                            while (flag) {
-                                var index = text.indexOf(arr[i][1], num + len);
-                                if (index === -1) {
-                                    flag = false;
-                                } else {
-                                    var numeralText = '（' + arr[i][0] + '）';
-                                    len = arr[i][1].length;
-                                    num = index;
-                                    if (i === 0) {
-                                        text = text.slice(0, index + len) + numeralText + text.slice(index +
-                                            len);
-                                    } else {
-                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
-                                            text = text.slice(0, index + len) + numeralText + text.slice(
-                                                index + len);
-                                        }
-                                    }
-                                }
-                            }
+                            var numeralText = '（' + arr[i][0] + '）';
+                            text = checkNumeral(text, numeralText);
                         }
                         if (text === '') {
                             return [];
@@ -273,28 +253,8 @@
                         }
                     } else {
                         for (var i = 0; i < arr.length; i++) {
-                            var flag = true;
-                            var num = 0;
-                            var len = 0;
-                            while (flag) {
-                                var index = text.indexOf(arr[i][1], num + len);
-                                if (index === -1) {
-                                    flag = false;
-                                } else {
-                                    var numeralText = '' + arr[i][0];
-                                    len = arr[i][1].length;
-                                    num = index;
-                                    if (i === 0) {
-                                        text = text.slice(0, index + len) + numeralText + text.slice(index +
-                                            len);
-                                    } else {
-                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
-                                            text = text.slice(0, index + len) + numeralText + text.slice(
-                                                index + len);
-                                        }
-                                    }
-                                }
-                            }
+                            var numeralText = '' + arr[i][0];
+                            text = checkNumeral(text, numeralText);
                         }
                         if (text === '') {
                             return [];
@@ -309,11 +269,52 @@
                             });
                         }
                     }
+                    function checkNumeral(text, numeralText) {
+                        var flag = true;
+                        var num = 0;
+                        var len = 0;
+                        while (flag) {
+                            var index = text.indexOf(arr[i][1], num + len);
+                            if (index === -1) {
+                                flag = false;
+                            } else {
+                                len = arr[i][1].length;
+                                num = index;
+                                if (i === 0) {
+                                    text = text.slice(0, index + len) + numeralText + text.slice(index +
+                                        len);
+                                } else {
+                                    len = arr[i][1].length;
+                                    num = index;
+                                    if (i === 0) {
+                                        text = text.slice(0, index + len) + numeralText + text.slice(index +
+                                            len);
+                                    } else {
+                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
+                                            var preIndex = arr[i - 1][1].indexOf(arr[i][1]);
+                                            var preLen = arr[i - 1][1].length;
+                                            if (preIndex === -1) {
+                                                text = text.slice(0, index + len) + numeralText + text.slice(
+                                                    index + len);
+                                            } else {
+                                                var preText = text.substr(index - preIndex, preLen);
+                                                if (preText !== arr[i - 1][1]) {
+                                                    text = text.slice(0, index + len) + numeralText + text.slice(
+                                                        index + len);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return text;
+                    }
                 },
                 confirmModal: function () {
                     this.$Modal.confirm({
                         title: '常见问题',
-                        content: '<ol class="problem-list"><li>不支持IE8及其以下浏览器。</li><li>可能会有重复标记问题，例如：“螺栓”、“螺栓柱”这种含有包含性的词语，请注意检查转换后内容是否有错误。</li><li>有问题可以反馈给我，QQ：3600630026，我好进行修改。</li</ol>'
+                        content: '<ol class="problem-list"><li>不支持IE8及其以下浏览器。</li><li>可能会有错误标记，请注意检查转换后内容是否有错误。</li><li>有问题可以反馈给我，QQ：3600630026，我好进行修改。</li</ol>'
                     });
                 }
             }
