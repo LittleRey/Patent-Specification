@@ -11,11 +11,8 @@
 <body>
     <script>
         function tagText(arr, text, bracketFlag) {
+            text = checkNumeral(arr, text, bracketFlag);
             if (bracketFlag) {
-                for (var i = 0; i < arr.length; i++) {
-                    var numeralText = '（' + arr[i][0] + '）';
-                    text = checkNumeral(text, numeralText);
-                }
                 if (text === '') {
                     return [];
                 } else {
@@ -23,10 +20,6 @@
                     return textArr;
                 }
             } else {
-                for (var i = 0; i < arr.length; i++) {
-                    var numeralText = '' + arr[i][0];
-                    text = checkNumeral(text, numeralText);
-                }
                 if (text === '') {
                     return [];
                 } else {
@@ -41,26 +34,28 @@
                 }
             }
 
-            function checkNumeral(text, numeralText) {
-                var flag = true;
-                var num = 0;
-                var len = 0;
-                while (flag) {
-                    var index = text.indexOf(arr[i][1], num + len);
-                    if (index === -1) {
-                        flag = false;
+            function checkNumeral(arr, text, bracketFlag) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (bracketFlag) {
+                        var numeralText = '（' + arr[i][0] + '）';
                     } else {
-                        len = arr[i][1].length;
-                        num = index;
-                        if (i === 0) {
-                            text = text.slice(0, index + len) + numeralText + text.slice(index + len);
+                        var numeralText = '' + arr[i][0];
+                    }
+                    var flag = true;
+                    var num = 0;
+                    var len = 0;
+                    while (flag) {
+                        var index = text.indexOf(arr[i][1], num + len);
+                        if (index === -1) {
+                            flag = false;
                         } else {
                             len = arr[i][1].length;
                             num = index;
                             if (i === 0) {
-                                text = text.slice(0, index + len) + numeralText + text.slice(index +
-                                    len);
+                                text = text.slice(0, index + len) + numeralText + text.slice(index + len);
                             } else {
+                                len = arr[i][1].length;
+                                num = index;
                                 if (index !== text.indexOf(arr[i - 1][1], index)) {
                                     var preIndex = arr[i - 1][1].indexOf(arr[i][1]);
                                     var preLen = arr[i - 1][1].length;
