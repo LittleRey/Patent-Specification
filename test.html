@@ -11,79 +11,74 @@
 <body>
     <script>
         function tagText(arr, text, bracketFlag) {
-            text = checkNumeral(arr, text, bracketFlag);
-            if (bracketFlag) {
-                if (text === '') {
-                    return [];
+            for (var i = 0; i < arr.length; i++) {
+                if (bracketFlag) {
+                    var numeralText = '（' + arr[i][0] + '）';
                 } else {
-                    var textArr = text.split(/\n/);
-                    return textArr;
+                    var numeralText = '' + arr[i][0];
                 }
-            } else {
-                if (text === '') {
-                    return [];
-                } else {
-                    var textArr = text.split(/\n/);
-                    return textArr.map(function (val) {
-                        if (val.indexOf('根据权利要求') !== -1) {
-                            return val.slice(val.indexOf('，') + 1);
-                        } else {
-                            return val;
-                        }
-                    });
-                }
-            }
-
-            function checkNumeral(arr, text, bracketFlag) {
-                for (var i = 0; i < arr.length; i++) {
-                    if (bracketFlag) {
-                        var numeralText = '（' + arr[i][0] + '）';
+                var flag = true;
+                var num = 0;
+                var len = 0;
+                while (flag) {
+                    var index = text.indexOf(arr[i][1], num + len);
+                    if (index === -1) {
+                        flag = false;
                     } else {
-                        var numeralText = '' + arr[i][0];
-                    }
-                    var flag = true;
-                    var num = 0;
-                    var len = 0;
-                    while (flag) {
-                        var index = text.indexOf(arr[i][1], num + len);
-                        if (index === -1) {
-                            flag = false;
+                        len = arr[i][1].length;
+                        num = index;
+                        if (i === 0) {
+                            text = text.slice(0, index + len) + numeralText + text.slice(index +
+                                len);
                         } else {
                             len = arr[i][1].length;
                             num = index;
-                            if (i === 0) {
-                                text = text.slice(0, index + len) + numeralText + text.slice(index + len);
-                            } else {
-                                len = arr[i][1].length;
-                                num = index;
-                                if (index !== text.indexOf(arr[i - 1][1], index)) {
-                                    var preIndex = arr[i - 1][1].indexOf(arr[i][1]);
-                                    var preLen = arr[i - 1][1].length;
-                                    if (preIndex === -1) {
-                                        text = text.slice(0, index + len) + numeralText + text.slice(
-                                            index + len);
-                                    } else {
-                                        var preText = text.substr(index - preIndex, preLen);
-                                        if (preText !== arr[i - 1][1]) {
-                                            text = text.slice(0, index + len) + numeralText + text.slice(
-                                                index + len);
+                            var numeralFlag = false;
+                            for (var j = 0; j < i; j++) {
+                                if (arr[j][1].indexOf(arr[i][1]) !== -1) {
+                                    numeralFlag = true;
+                                }
+                            }
+                            if (numeralFlag) {
+                                var numeralFlag2 = true;
+                                for (var k = 0; k < i; k++) {
+                                    if (index !== text.indexOf(arr[k][1], index)) {
+                                        var preIndex = arr[k][1].indexOf(arr[i][1]);
+                                        var preLen = arr[k][1].length;
+                                        if (preIndex !== -1) {
+                                            var preText = text.substr(index - preIndex, preLen);
+                                            if (preText == arr[k][1]) {
+                                                numeralFlag2 = false;
+                                                break;
+                                            }
                                         }
+                                    } else {
+                                        numeralFlag2 = false;
+                                        break;
                                     }
                                 }
+                                if (numeralFlag2) {
+                                    text = text.slice(0, index + len) + numeralText + text.slice(
+                                        index + len);
+                                }
+                            } else {
+                                text = text.slice(0, index + len) + numeralText + text.slice(index + len);
                             }
                         }
                     }
                 }
-                return text;
             }
+            return text;
         }
 
         console.log(tagText([
+            ['6', '第二螺栓座底'],
             ['3', '第一螺栓座底'],
+            ['5', '螺栓座底'],
             ['2', '螺栓座'],
             ['1', '螺栓'],
             ['4', '工作台']
-        ], '所述螺栓的螺栓座，第一螺栓座底有个螺栓座，螺栓座底有个螺栓，工作台', true));
+        ], '所述螺栓的螺栓座，第一螺栓座底有个螺栓座，螺栓座底有个螺栓，工作台第二螺栓座底，第二螺栓座底螺栓螺栓座底', true));
         console.log(tagText([
             ['1', '第一螺栓座'],
             ['2', '螺栓']

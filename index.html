@@ -180,7 +180,7 @@
                     } else {
                         numArr = numArr.map(function (val, index) {
                             var arr = [];
-                            var wordIndex = val.search(/[\u4e00-\u9fa5]/);
+                            var wordIndex = val.search(/[a-zA-Z\u4e00-\u9fa5]/);
                             var numberLastIndex = 0;
                             if (/[0-9]/.test(val[0])) {
                                 for (var i = val.length; i >= 0; i--) {
@@ -286,19 +286,37 @@
                                     } else {
                                         len = arr[i][1].length;
                                         num = index;
-                                        if (index !== text.indexOf(arr[i - 1][1], index)) {
-                                            var preIndex = arr[i - 1][1].indexOf(arr[i][1]);
-                                            var preLen = arr[i - 1][1].length;
-                                            if (preIndex === -1) {
-                                                text = text.slice(0, index + len) + numeralText + text.slice(
-                                                    index + len);
-                                            } else {
-                                                var preText = text.substr(index - preIndex, preLen);
-                                                if (preText !== arr[i - 1][1]) {
-                                                    text = text.slice(0, index + len) + numeralText + text.slice(
-                                                        index + len);
+                                        var numeralFlag = false;
+                                        for (var j = 0; j < i; j++) {
+                                            if (arr[j][1].indexOf(arr[i][1]) !== -1) {
+                                                numeralFlag = true;
+                                            }
+                                        }
+                                        if (numeralFlag) {
+                                            var numeralFlag2 = true;
+                                            for (var k = 0; k < i; k++) {
+                                                if (index !== text.indexOf(arr[k][1], index)) {
+                                                    var preIndex = arr[k][1].indexOf(arr[i][1]);
+                                                    var preLen = arr[k][1].length;
+                                                    if (preIndex !== -1) {
+                                                        var preText = text.substr(index - preIndex, preLen);
+                                                        if (preText == arr[k][1]) {
+                                                            numeralFlag2 = false;
+                                                            break;
+                                                        }
+                                                    }
+                                                } else {
+                                                    numeralFlag2 = false;
+                                                    break;
                                                 }
                                             }
+                                            if (numeralFlag2) {
+                                                text = text.slice(0, index + len) + numeralText + text.slice(
+                                                    index + len);
+                                            }
+                                        } else {
+                                            text = text.slice(0, index + len) + numeralText + text.slice(
+                                                index + len);
                                         }
                                     }
                                 }
