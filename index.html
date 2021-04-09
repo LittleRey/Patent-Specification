@@ -172,7 +172,7 @@
             },
             computed: {
                 numeralArr: function () {
-                    var firstNumberIndex = this.referenceNumeral.search(/[1-9]/);
+                    var firstNumberIndex = this.referenceNumeral.search(/[a-z1-9]/);
                     var numArr = this.referenceNumeral.slice(firstNumberIndex).replace(/。/g, '').trim().split(
                         /，|,/);
                     if (numArr.length === 1 && numArr[0] === '') {
@@ -328,7 +328,7 @@
                 confirmModal: function () {
                     this.$Modal.confirm({
                         title: '常见问题',
-                        content: '<ol class="problem-list"><li>不支持IE8及其以下浏览器。</li><li>可能会有错误标记，请注意检查转换后内容是否有错误。</li><li>有问题可以反馈给我，QQ：3600630026，我好进行修改。</li</ol>'
+                        content: '<ol class="problem-list"><li>不支持IE8及其以下浏览器。</li><li>可能会有错误标记，请注意检查转换后内容是否有错误。</li><li>有问题可以反馈给我。</li</ol>'
                     });
                 }
             }
