@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -182,9 +182,9 @@
                             var arr = [];
                             var wordIndex = val.search(/[a-zA-Z\u4e00-\u9fa5]/);
                             var numberLastIndex = 0;
-                            if (/[0-9]/.test(val[0])) {
+                            if (/[a-z0-9]/.test(val[0])) {
                                 for (var i = val.length; i >= 0; i--) {
-                                    if (/[0-9]/.test(val[i])) {
+                                    if (/[a-z0-9]/.test(val[i])) {
                                         numberLastIndex = i;
                                         break;
                                     }
